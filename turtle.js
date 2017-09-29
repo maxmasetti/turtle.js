@@ -1,3 +1,5 @@
+/* Python Turtle-like canvas library */
+
 /* Va alla posizione (x, y) Per es. "goto(0, 0)" equivale a "home()" */
 CanvasRenderingContext2D.prototype.goto = function(x, y) {
   this.x = x || 0;
