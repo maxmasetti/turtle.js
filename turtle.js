@@ -1,5 +1,11 @@
 /* Python Turtle-like canvas library */
 
+/* Imposta il sistema di riferimento come cartesiano centrato nel canvas */
+CanvasRenderingContext2D.prototype.cartesian = function(on) {
+  this.iscartesian = !!on;
+  return this;
+}
+
 /* Va alla posizione (x, y) Per es. "goto(0, 0)" equivale a "home()" */
 CanvasRenderingContext2D.prototype.goto = function(x, y) {
   this.x = x || 0;
@@ -15,9 +21,8 @@ CanvasRenderingContext2D.prototype.setheading = function(angle) {
 
 /* Ruota in senso orario di un dato angolo in gradi */
 CanvasRenderingContext2D.prototype.right = function(angle) {
-  if (this.angle) {
-    angle += this.angle;
-  }
+  if (this.iscartesian) angle *= -1;
+  if (this.angle) angle += this.angle;
   this.angle = (angle % 360) || 0;
   return this;
 }
@@ -35,13 +40,17 @@ CanvasRenderingContext2D.prototype.forward = function(len) {
   var angle = (this.angle || 0) / 180 * Math.PI;
   this.x = x + len * Math.cos(angle);
   this.y = y + len * Math.sin(angle);
-  var offx = Math.trunc(this.canvas.width / 2);
-  var offy = Math.trunc(this.canvas.height / 2);
   this.save();
-  this.translate(offx, offy);
+  if (this.iscartesian) {
+    var offx = Math.trunc(this.canvas.width / 2);
+    var offy = Math.trunc(this.canvas.height / 2);
+    this.translate(offx, offy);
+    this.scale(1, -1);
+  }
   if (this.ispenup) {
     this.moveTo(this.x, this.y);
   } else {
+    context.lineCap = "round";
     this.beginPath();
     this.moveTo(x, y);
     this.lineTo(this.x, this.y);
@@ -103,3 +112,4 @@ CanvasRenderingContext2D.prototype.clear = function() {
 CanvasRenderingContext2D.prototype.reset = function() {
   return this.clear().home().pensize(1).pencolor('black').down();
 }
+
