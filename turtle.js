@@ -73,12 +73,14 @@ CanvasRenderingContext2D.prototype.pensize = function(dimension) {
 /* Imposta il colore della penna */
 CanvasRenderingContext2D.prototype.pencolor = function(color, sat=100, light=50) {
   let hue = parseFloat(color)
-  sat = Math.abs((1 * sat) || 100) % 101
-  light = Math.abs((1 * light) || 50) % 101
-  if (!isNaN(hue)) {
-    this.strokeStyle = `hsl( ${hue % 360}, ${sat}%, ${light}%)`
-  } else {
+  if (isNaN(hue)) {
     this.strokeStyle = color
+  } else {
+    hue %= 360
+    sat = Math.abs((1 * sat) || 100) % 101
+    light = Math.abs((1 * light) || 50) % 101
+    this.strokeStyle = `hsl( ${hue}, ${sat}%, ${light}%)`
+    console.log(`hsl( ${hue}, ${sat}%, ${light}%)`)
   }
   return this;
 }
