@@ -77,10 +77,7 @@ CanvasRenderingContext2D.prototype.pencolor = function(color, sat=100, light=50)
     this.strokeStyle = color
   } else {
     hue %= 360
-    sat = Math.abs((1 * sat) || 100) % 101
-    light = Math.abs((1 * light) || 50) % 101
     this.strokeStyle = `hsl( ${hue}, ${sat}%, ${light}%)`
-    console.log(`hsl( ${hue}, ${sat}%, ${light}%)`)
   }
   return this;
 }
