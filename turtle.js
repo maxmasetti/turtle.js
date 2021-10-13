@@ -1,42 +1,51 @@
+/* Imposta il canvas come cartesiano, ovvero con il centro al centro e la y che cresce verso l'alto */
+CanvasRenderingContext2D.prototype.setcartesian = function(c=false) {
+  this.isCartesian = c
+  if (c) {
+    this.setTransform(1, 0, 0, -1, this.canvas.width/2, this.canvas.height/2)
+  } else {
+    this.setTransform(1, 0, 0, 1, 0, 0)
+  }
+  return this;
+}
+
 /* Va alla posizione (x, y) Per es. "goto(0, 0)" equivale a "home()" */
-CanvasRenderingContext2D.prototype.goto = function(x, y) {
-  this.x = x || 0;
-  this.y = y || 0;
+CanvasRenderingContext2D.prototype.goto = function(x=0, y=0) {
+  this.x = x;
+  this.y = y;
   return this;
 }
 
 /* Orienta la tartaruga in base all'angolo specificato */
-CanvasRenderingContext2D.prototype.setheading = function(angle) {
-  this.angle = (angle % 360) || 0;
+CanvasRenderingContext2D.prototype.setheading = function(angle=0) {
+  this.angle = angle % 360;
   return this;
 }
 
 /* Ruota in senso orario di un dato angolo in gradi */
-CanvasRenderingContext2D.prototype.right = function(angle) {
-  if (this.angle) {
-    angle += this.angle;
-  }
-  this.angle = (angle % 360) || 0;
-  return this;
+CanvasRenderingContext2D.prototype.right = function(angle=0) {
+  let c = 1 - 2 * (this.isCartesian || 0)
+  this.angle = (this.angle || 0) + c * angle
+  this.angle %= 360
+  return this
 }
 
 /* Ruota in senso antiorario di un dato angolo in gradi */
-CanvasRenderingContext2D.prototype.left = function(angle) {
+CanvasRenderingContext2D.prototype.left = function(angle=0) {
   return this.right(-angle);
 }
 
 /* Si muove in avanti di un dato numero di pixel (distanza) */
-CanvasRenderingContext2D.prototype.forward = function(len) {
-  len = len || 0;
-  var x = this.x || 0;
-  var y = this.y || 0;
-  var angle = (this.angle || 0) / 180 * Math.PI;
+CanvasRenderingContext2D.prototype.forward = function(len=0) {
+  let x = this.x || 0;
+  let y = this.y || 0;
+  let angle = (this.angle || 0) / 180 * Math.PI;
   this.x = x + len * Math.cos(angle);
   this.y = y + len * Math.sin(angle);
-  var offx = Math.trunc(this.canvas.width / 2);
-  var offy = Math.trunc(this.canvas.height / 2);
+  //var offx = Math.trunc(this.canvas.width / 2);
+  //var offy = Math.trunc(this.canvas.height / 2);
   this.save();
-  this.translate(offx, offy);
+  //this.translate(offx, offy);
   if (this.ispenup) {
     this.moveTo(this.x, this.y);
   } else {
@@ -62,29 +71,31 @@ CanvasRenderingContext2D.prototype.pensize = function(dimension) {
 }
 
 /* Imposta il colore della penna */
-CanvasRenderingContext2D.prototype.pencolor = function(color) {
-  var hue = parseFloat(color);
+CanvasRenderingContext2D.prototype.pencolor = function(color, sat=100, light=50) {
+  let hue = parseFloat(color)
+  sat = Math.abs((1 * sat) || 100) % 101
+  light = Math.abs((1 * light) || 50) % 101
   if (!isNaN(hue)) {
-    this.strokeStyle = 'hsl(' + (hue % 360) + ', 100%, 50%)';
+    this.strokeStyle = `hsl( ${hue % 360}, ${sat}%, ${light}%)`
   } else {
-    this.strokeStyle = color;
+    this.strokeStyle = color
   }
   return this;
 }
 
 /* Solleva la penna (per non scrivere quando si muove) */
 CanvasRenderingContext2D.prototype.up =
-CanvasRenderingContext2D.prototype.penup = function() {
-  this.ispenup = true;
-  return this;
-}
+  CanvasRenderingContext2D.prototype.penup = function() {
+    this.ispenup = true;
+    return this;
+  }
 
 /* Abbassa la penna per scrivere */
 CanvasRenderingContext2D.prototype.down =
-CanvasRenderingContext2D.prototype.pendown = function() {
-  this.ispenup = false;
-  return this;
-}
+  CanvasRenderingContext2D.prototype.pendown = function() {
+    this.ispenup = false;
+    return this;
+  }
 
 /* Ritorna alla base, posizione (0, 0), e punta verso destra */
 CanvasRenderingContext2D.prototype.home = function() {
